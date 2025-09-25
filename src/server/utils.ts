@@ -30,6 +30,14 @@ export const getKindeRouteFromRequest = (request: Request) => {
   return finalPath as KindeRoute;
 };
 
+export const isKindeRoute = (request: Request) => {
+  const finalPath = getLastPathFromRequest(request);
+  if (!finalPath) {
+    return false;
+  }
+  return KindeRoutes.includes(finalPath as KindeRoute);
+};
+
 export const isTokenExpired = (token: string) => {
   const decodedToken = jwtDecoder(token);
 
