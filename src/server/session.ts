@@ -3,7 +3,7 @@ import { TanstackStore } from './store';
 
 let session: TanstackStore | null = null;
 
-export const initSession = () => {
+const initSession = () => {
   if (session) return;
   session = new TanstackStore();
   setActiveStorage(session);

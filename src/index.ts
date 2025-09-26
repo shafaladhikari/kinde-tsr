@@ -1,2 +1,2 @@
 export * from '@kinde/js-utils';
-export * from './server';
+export { KindeAuthHandler, KindeAuthMiddleware } from './server';

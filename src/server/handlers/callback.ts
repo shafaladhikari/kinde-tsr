@@ -5,6 +5,7 @@ import { kindeLog } from '../../logger';
 import type { KindeRouteHandler } from '../../server/types';
 
 export const callbackHandler: KindeRouteHandler = async (request) => {
+  kindeLog.info('callbackHandler: firing');
   const exchangeResult = await exchangeAuthCode({
     urlParams: new URL(request.url).searchParams,
     clientId: KindeConfig.env.KINDE_CLIENT_ID,

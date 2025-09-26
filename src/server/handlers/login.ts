@@ -1,9 +1,11 @@
 import { generateAuthUrl, IssuerRouteTypes, Scopes } from '@kinde/js-utils';
 import { redirect } from '@tanstack/react-router';
 import { KindeConfig } from '../../config';
+import { kindeLog } from '../../logger';
 import type { KindeRouteHandler } from '../../server/types';
 
 export const loginHandler: KindeRouteHandler = async () => {
+  kindeLog.info('loginHandler: firing');
   const authUrl = await generateAuthUrl(KindeConfig.env.KINDE_ISSUER_URL, IssuerRouteTypes.login, {
     clientId: KindeConfig.env.KINDE_CLIENT_ID,
     redirectURL: KindeConfig.callbackUrl,
