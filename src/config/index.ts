@@ -15,9 +15,9 @@ const buildKindeConfig = (): KindeConfig => {
   return {
     env,
     isDebugMode: stringbool(env.KINDE_DEBUG_MODE),
-    postLoginRedirectUrl: trimTrailingSlash(env.KINDE_POST_LOGIN_REDIRECT_URL) ?? env.KINDE_SITE_URL,
-    postLogoutRedirectUrl: trimTrailingSlash(env.KINDE_POST_LOGOUT_REDIRECT_URL) ?? env.KINDE_SITE_URL,
-    callbackUrl: `${env.KINDE_SITE_URL}/api/auth/callback`,
+    postLoginRedirectUrl: trimTrailingSlash(env.KINDE_POST_LOGIN_REDIRECT_URL) ?? env.VITE_KINDE_SITE_URL,
+    postLogoutRedirectUrl: trimTrailingSlash(env.KINDE_POST_LOGOUT_REDIRECT_URL) ?? env.VITE_KINDE_SITE_URL,
+    callbackUrl: `${env.VITE_KINDE_SITE_URL}/api/auth/callback`,
   };
 };
 

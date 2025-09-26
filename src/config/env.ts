@@ -1,10 +1,10 @@
 import { trimTrailingSlash } from './utils';
 
 export const kindeEssentialEnvVars = [
-  'KINDE_CLIENT_ID',
+  'VITE_KINDE_CLIENT_ID',
   'KINDE_CLIENT_SECRET',
-  'KINDE_ISSUER_URL',
-  'KINDE_SITE_URL',
+  'VITE_KINDE_ISSUER_URL',
+  'VITE_KINDE_SITE_URL',
 ] as const;
 export const kindeOptionalEnvVars = [
   'KINDE_DEBUG_MODE',
@@ -34,7 +34,7 @@ export const getValidatedKindeEnv = () => {
       throw new Error(`[Kinde] ${varName} is not set in the environment variables`);
     }
 
-    if (varName === 'KINDE_ISSUER_URL' || varName === 'KINDE_SITE_URL') {
+    if (varName === 'VITE_KINDE_ISSUER_URL' || varName === 'VITE_KINDE_SITE_URL') {
       env[varName] = trimTrailingSlash(varValue)!;
     } else {
       env[varName] = varValue;

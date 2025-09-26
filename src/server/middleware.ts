@@ -4,7 +4,9 @@ import { createMiddleware } from '@tanstack/react-start';
 import { kindeLog } from '../logger';
 import { isKindeRoute, refreshTokenIfNecessary } from './utils';
 
-export const KindeAuthMiddleware = createMiddleware().server(async ({ request, next }) => {
+type KindeRequestMiddleware = ReturnType<ReturnType<typeof createMiddleware>['server']>;
+
+export const KindeAuthMiddleware: KindeRequestMiddleware = createMiddleware().server(async ({ request, next }) => {
   kindeLog.info('KindeAuthMiddleware: firing');
   if (isKindeRoute(request)) {
     kindeLog.info('KindeAuthMiddleware: isKindeRoute, passing to next middleware');

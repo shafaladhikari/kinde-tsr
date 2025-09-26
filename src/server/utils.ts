@@ -61,8 +61,8 @@ export const refreshTokenIfNecessary = async () => {
 
   if (isTokenExpired(accessToken as string) || isTokenExpired(idToken as string)) {
     const refreshResult = await refreshToken({
-      domain: KindeConfig.env.KINDE_ISSUER_URL,
-      clientId: KindeConfig.env.KINDE_CLIENT_ID,
+      domain: KindeConfig.env.VITE_KINDE_ISSUER_URL,
+      clientId: KindeConfig.env.VITE_KINDE_CLIENT_ID,
       refreshType: RefreshType.refreshToken,
     });
 
