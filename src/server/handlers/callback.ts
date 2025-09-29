@@ -12,6 +12,7 @@ export const callbackHandler: KindeRouteHandler = async (request) => {
     domain: KindeConfig.env.VITE_KINDE_ISSUER_URL,
     redirectURL: KindeConfig.callbackUrl,
     clientSecret: KindeConfig.env.KINDE_CLIENT_SECRET,
+    autoRefresh: false,
   });
 
   if (!exchangeResult.success) {

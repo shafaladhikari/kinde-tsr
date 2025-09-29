@@ -1,2 +1,2 @@
 export * from '@kinde-oss/kinde-auth-react/components';
-export { KindeTanstackProvider } from './KindeTanstackProvider';
+export { default as KindeTanstackProvider } from './KindeTanstackProvider';

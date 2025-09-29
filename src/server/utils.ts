@@ -45,7 +45,9 @@ export const isTokenExpired = (token: string) => {
     return true;
   }
 
-  return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
+  const TWENTY_EIGHT_DAYS = 86400000;
+  const expiry = Math.min(decodedToken.exp * 1000 - 20000, TWENTY_EIGHT_DAYS);
+  return expiry < Date.now();
 };
 
 export const refreshTokenIfNecessary = async () => {
