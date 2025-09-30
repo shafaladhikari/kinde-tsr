@@ -1,11 +1,14 @@
-import { isKindeRoute, refreshTokenIfNecessary } from "../utils";
-import { kindeLog } from "../../logger";
-import { getUserProfile, isAuthenticated } from "@kinde/js-utils";
-import { isRedirect, redirect } from "@tanstack/react-router";
-import { RequestServerNextFn } from "@tanstack/react-start";
-import { KindeConfig } from "../../config";
+import { getUserProfile, isAuthenticated } from '@kinde/js-utils';
+import { isRedirect, redirect } from '@tanstack/react-router';
+import type { RequestServerNextFn } from '@tanstack/react-start';
+import { KindeConfig } from '../../config';
+import { kindeLog } from '../../logger';
+import { isKindeRoute, refreshTokenIfNecessary } from '../utils';
 
-export const handleKindeMiddleware = async <TRegister, TMiddlewares>(request: Request, next: RequestServerNextFn<TRegister, TMiddlewares>) => {
+export const handleKindeMiddleware = async <TRegister, TMiddlewares>(
+  request: Request,
+  next: RequestServerNextFn<TRegister, TMiddlewares>,
+) => {
   kindeLog.info(`KindeAuthMiddleware: firing with path ${request.url}`);
   if (isKindeRoute(request)) {
     kindeLog.info('KindeAuthMiddleware: isKindeRoute, passing to next middleware');
@@ -22,5 +25,5 @@ export const handleKindeMiddleware = async <TRegister, TMiddlewares>(request: Re
     });
   }
 
-  return next()
+  return next();
 };

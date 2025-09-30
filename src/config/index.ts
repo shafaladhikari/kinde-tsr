@@ -1,6 +1,6 @@
+import { sanitizeUrl } from '@kinde/js-utils';
 import { getValidatedKindeEnv, type KindeEnv } from './env';
 import { stringbool, trimTrailingSlash } from './utils';
-import { sanitizeUrl } from '@kinde/js-utils'
 
 type KindeConfig = {
   env: KindeEnv;
@@ -15,11 +15,11 @@ type KindeConfig = {
   createOrgUrl: string;
   authApiPath: string;
   cookieDomain: string | undefined;
-}
+};
 
 const buildKindeConfig = (): KindeConfig => {
   const env = getValidatedKindeEnv();
-  const authApiPath = env.KINDE_AUTH_API_PATH ?? 'api/auth'
+  const authApiPath = env.KINDE_AUTH_API_PATH ?? 'api/auth';
 
   const buildKindeAuthUrl = (path: string) => {
     return sanitizeUrl(`${env.KINDE_SITE_URL}/${authApiPath}/${path}`);

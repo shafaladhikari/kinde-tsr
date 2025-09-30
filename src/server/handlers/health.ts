@@ -1,12 +1,12 @@
-import { redirect } from "@tanstack/react-router";
-import { KindeConfig } from "../../config";
-import { kindeLog } from "../../logger";
-import type { KindeRouteHandler } from "../types";
-import { validateClientSecret } from "../../server/utils";
+import { redirect } from '@tanstack/react-router';
+import { KindeConfig } from '../../config';
+import { kindeLog } from '../../logger';
+import { validateClientSecret } from '../../server/utils';
+import type { KindeRouteHandler } from '../types';
 
 export const healthHandler: KindeRouteHandler = async (_, session) => {
   if (!KindeConfig.isDebugMode) {
-    return new Response("OK", { status: 200 });
+    return new Response('OK', { status: 200 });
   }
 
   return new Response(
@@ -17,8 +17,8 @@ export const healthHandler: KindeRouteHandler = async (_, session) => {
       issuerURL: KindeConfig.env.KINDE_ISSUER_URL,
       clientID: KindeConfig.env.KINDE_CLIENT_ID,
       clientSecret: validateClientSecret(KindeConfig.env.KINDE_CLIENT_SECRET ?? '')
-        ? "Set correctly"
-        : "Not set correctly",
+        ? 'Set correctly'
+        : 'Not set correctly',
       postLogoutRedirectURL: KindeConfig.postLogoutRedirectUrl,
       audience: KindeConfig.env.KINDE_AUDIENCE,
       cookieDomain: KindeConfig.env.KINDE_COOKIE_DOMAIN,
@@ -30,12 +30,12 @@ export const healthHandler: KindeRouteHandler = async (_, session) => {
         register: KindeConfig.registerUrl,
         health: KindeConfig.healthUrl,
         createOrg: KindeConfig.createOrgUrl,
-      }
+      },
     }),
     {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    }
+    },
   );
 };

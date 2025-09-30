@@ -14,4 +14,4 @@ export const getServerSession = () => {
     initServerSession();
   }
   return serverSession!;
-}
+};

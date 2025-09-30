@@ -13,4 +13,4 @@ export const getClientSession = () => {
     initClientSession();
   }
   return clientSession!;
-}
+};

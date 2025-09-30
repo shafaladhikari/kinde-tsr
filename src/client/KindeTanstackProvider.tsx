@@ -1,8 +1,8 @@
-import { type ReactNode } from 'react';
 import { KindeProvider } from '@kinde-oss/kinde-auth-react';
+import type { ReactNode } from 'react';
+import { KindeConfig } from '../config';
 import { getClientSession } from './store';
 import { useSessionSync } from './use-store-sync';
-import { KindeConfig } from '../config';
 
 export type KindeTanstackProviderProps = {
   children: ReactNode;
@@ -28,4 +28,3 @@ export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProvi
     </KindeProvider>
   );
 };
-

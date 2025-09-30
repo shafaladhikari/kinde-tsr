@@ -10,7 +10,7 @@ export const loginHandler: KindeRouteHandler = async () => {
     clientId: KindeConfig.env.KINDE_CLIENT_ID,
     redirectURL: KindeConfig.callbackUrl,
     responseType: 'code',
-    
+
     scope: [Scopes.openid, Scopes.profile, Scopes.email, Scopes.offline_access],
   });
   throw redirect({
