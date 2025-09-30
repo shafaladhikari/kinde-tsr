@@ -1,5 +1,4 @@
-import { getUserProfile, isAuthenticated } from '@kinde/js-utils';
-import { isRedirect, redirect } from '@tanstack/react-router';
+import { redirect } from '@tanstack/react-router';
 import type { RequestServerNextFn } from '@tanstack/react-start';
 import { KindeConfig } from '../../config';
 import { kindeLog } from '../../logger';

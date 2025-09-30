@@ -1,10 +1,8 @@
-import { redirect } from '@tanstack/react-router';
 import { KindeConfig } from '../../config';
-import { kindeLog } from '../../logger';
 import { validateClientSecret } from '../../server/utils';
 import type { KindeRouteHandler } from '../types';
 
-export const healthHandler: KindeRouteHandler = async (_, session) => {
+export const healthHandler: KindeRouteHandler = async () => {
   if (!KindeConfig.isDebugMode) {
     return new Response('OK', { status: 200 });
   }
