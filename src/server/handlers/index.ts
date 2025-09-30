@@ -18,7 +18,7 @@ const RouteMap: KindeRouteHandlerMap = {
   health: healthHandler,
 };
 
-export const KindeAuthHandler = createServerOnlyFn(async (request: Request) => {
+export const kindeAuthHandler = createServerOnlyFn(async (request: Request) => {
   const route = getKindeRouteFromRequest(request);
 
   if (!route) {
