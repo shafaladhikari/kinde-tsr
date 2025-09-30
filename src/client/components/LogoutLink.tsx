@@ -1,10 +1,14 @@
-import { LogoutLink as ReactLogoutLink } from '@kinde-oss/kinde-auth-react/components';
+import { Link } from '@tanstack/react-router';
 import { KindeConfig } from '../../config';
+import { getClientSession } from '../store';
 
 export const LogoutLink = ({ children }: { children: React.ReactNode }) => {
+    const terminateLocalSession = async () => {
+        await getClientSession().destroySession();
+    }
     return (
-        <ReactLogoutLink redirectUrl={KindeConfig.logoutUrl}>
+        <Link to={KindeConfig.logoutUrl} onClick={terminateLocalSession}>
             {children}
-        </ReactLogoutLink>
+        </Link>
     )
 }

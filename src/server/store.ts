@@ -4,10 +4,12 @@ import { KindeConfig } from '../config';
 
 export class TanstackStore<V extends string = StorageKeys> extends SessionBase<V> implements SessionManager<V> {
   async destroySession(): Promise<void> {
-    const keys = Object.values(StorageKeys);
-    keys.forEach((key) => {
-      deleteCookie(key);
-    });
+    const cookies = getCookies();
+    for (const key in cookies) {
+      if (key.startsWith(`${storageSettings.keyPrefix}`)) {
+        deleteCookie(key);
+      }
+    }
   }
 
   async setSessionItem(itemKey: V | StorageKeys, itemValue: unknown): Promise<void> {
