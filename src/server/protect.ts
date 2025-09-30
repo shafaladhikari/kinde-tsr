@@ -1,4 +1,4 @@
-import { has } from '@kinde/js-utils'
+import { has, isAuthenticated } from '@kinde/js-utils'
 import { redirect } from '@tanstack/react-router'
 import { KindeConfig } from '../config'
 
@@ -12,6 +12,10 @@ type ProtectOptions = {
 }
 
 export const protect = async (options: ProtectOptions) => {
+    const isAuthed = await isAuthenticated();
+    if(!isAuthed) {
+        throw redirect({ to: options.redirectTo ?? KindeConfig.loginUrl })
+    }
   const canView = await has(options.has);
   if(!canView) {
     throw redirect({ to: options.redirectTo ?? KindeConfig.loginUrl })
