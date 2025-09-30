@@ -20,7 +20,7 @@ export const handleKindeMiddleware = async <TRegister, TMiddlewares>(
   if (!refreshResult.success) {
     kindeLog.info(`KindeAuthMiddleware: refresh token failed with error ${refreshResult.message}`);
     throw redirect({
-      to: KindeConfig.loginUrl,
+      href: KindeConfig.loginUrl,
     });
   }
 
