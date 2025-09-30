@@ -1,43 +1,33 @@
-import { StorageKeys } from '@kinde/js-utils';
+import { type ReactNode } from 'react';
 import { KindeProvider } from '@kinde-oss/kinde-auth-react';
-import { ClientOnly } from '@tanstack/react-router';
-import { type ReactNode, useEffect } from 'react';
-import { clientStore } from './store';
+import { getClientSession } from './store';
+import { useSessionSync } from './use-store-sync';
+import { KindeConfig } from '../config';
 
 export type KindeTanstackProviderProps = {
   children: ReactNode;
 };
 
 export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProviderProps) => {
-  return (
-    <ClientOnly>
-      <ClientOnlyKindeProvider {...props}>{children}</ClientOnlyKindeProvider>
-    </ClientOnly>
-  );
-}
+  const { loading } = useSessionSync();
 
-const ClientOnlyKindeProvider = ({ children, ...props }: KindeTanstackProviderProps) => {
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_KINDE_SITE_URL}/api/auth/setup`)
-      .then((res) => res.json())
-      .then(async (data) => {
-        await Promise.all([
-          clientStore.setSessionItem(StorageKeys.accessToken, data.accessToken),
-          clientStore.setSessionItem(StorageKeys.idToken, data.idToken),
-          clientStore.setSessionItem(StorageKeys.refreshToken, data.refreshToken),
-        ]);
-      });
-  }, []);
+  console.log('KindeConfig', KindeConfig);
+
+  if (loading) {
+    return null;
+  }
+
   return (
     <KindeProvider
-      clientId={import.meta.env.VITE_KINDE_CLIENT_ID}
-      domain={import.meta.env.VITE_KINDE_ISSUER_URL}
-      redirectUri={`${import.meta.env.VITE_KINDE_SITE_URL}/api/auth/callback`}
-      store={clientStore}
-      logoutUri={`${import.meta.env.VITE_KINDE_SITE_URL}/api/auth/logout`}
+      clientId={KindeConfig.KINDE_CLIENT_ID}
+      domain={KindeConfig.KINDE_ISSUER_URL}
+      redirectUri={KindeConfig.callbackUrl}
+      store={getClientSession()}
+      logoutUri={KindeConfig.logoutUrl}
       {...props}
     >
       {children}
     </KindeProvider>
   );
 };
+

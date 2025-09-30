@@ -3,7 +3,7 @@ import { callbackHandler } from '../../server/handlers/callback';
 import { loginHandler } from '../../server/handlers/login';
 import { logoutHandler } from '../../server/handlers/logout';
 import { setupHandler } from '../../server/handlers/setup';
-import { getSession } from '../../server/session';
+import { getServerSession } from '../../server/session';
 import type { KindeRouteHandlerMap } from '../../server/types';
 import { getKindeRouteFromRequest } from '../../server/utils';
 
@@ -22,7 +22,7 @@ export const KindeAuthHandler = createServerOnlyFn(async (request: Request) => {
   }
 
   const handler = RouteMap[route];
-  const session = getSession();
+  const session = getServerSession();
 
   return handler(request, session);
 });

@@ -1,48 +1,68 @@
-import { trimTrailingSlash } from './utils';
+import { trimTrailingSlash } from "./utils";
 
-export const kindeEssentialEnvVars = [
-  'VITE_KINDE_CLIENT_ID',
-  'KINDE_CLIENT_SECRET',
-  'VITE_KINDE_ISSUER_URL',
-  'VITE_KINDE_SITE_URL',
+export const kindeEssentialServerEnvVars = ["KINDE_CLIENT_SECRET"] as const;
+export const kindeEssentialClientEnvVars = [
+  "KINDE_CLIENT_ID",
+  "KINDE_ISSUER_URL",
+  "KINDE_SITE_URL",
 ] as const;
 export const kindeOptionalEnvVars = [
-  'KINDE_DEBUG_MODE',
-  'KINDE_POST_LOGIN_REDIRECT_URL',
-  'KINDE_POST_LOGOUT_REDIRECT_URL',
+  "KINDE_DEBUG_MODE",
+  "KINDE_POST_LOGIN_REDIRECT_URL",
+  "KINDE_POST_LOGOUT_REDIRECT_URL",
 ] as const;
-export const kindeEnvVars = [...kindeEssentialEnvVars, ...kindeOptionalEnvVars];
+export const kindeEnvVars = [
+  ...kindeEssentialServerEnvVars,
+  ...kindeEssentialClientEnvVars,
+  ...kindeOptionalEnvVars,
+];
 
-export type KindeEssentialEnvVars = (typeof kindeEssentialEnvVars)[number];
+export type KindeEssentialServerEnvVars =
+  (typeof kindeEssentialServerEnvVars)[number];
+export type KindeEssentialClientEnvVars =
+  (typeof kindeEssentialClientEnvVars)[number];
 export type KindeOptionalEnvVars = (typeof kindeOptionalEnvVars)[number];
 export type KindeEnvVars = (typeof kindeEnvVars)[number];
 export type KindeEnv = {
-  [K in KindeEssentialEnvVars]: string;
-} & {
-  [K in KindeOptionalEnvVars]?: string;
+  [K in
+    | KindeEssentialServerEnvVars
+    | KindeEssentialClientEnvVars
+    | KindeOptionalEnvVars]: string;
 };
 
 const getKindeEnvVar = (varName: KindeEnvVars) => {
-  return process.env[varName];
+  return import.meta.env[`VITE_${varName}`] ?? process.env[varName];
 };
 
 export const getValidatedKindeEnv = () => {
   const env: Partial<KindeEnv> = {};
-  kindeEssentialEnvVars.forEach((varName) => {
+  if (typeof window === "undefined") {
+    kindeEssentialServerEnvVars.forEach((varName) => {
+      const varValue = getKindeEnvVar(varName);
+      if (!varValue) {
+        throw new Error(
+          `[Kinde] ${varName} is not set in the environment variables`
+        );
+      }
+    });
+  }
+
+  kindeOptionalEnvVars.forEach((varName) => {
+    env[varName] = getKindeEnvVar(varName);
+  });
+
+  kindeEssentialClientEnvVars.forEach((varName) => {
     const varValue = getKindeEnvVar(varName);
     if (!varValue) {
-      throw new Error(`[Kinde] ${varName} is not set in the environment variables`);
+      throw new Error(
+        `[Kinde] ${varName} is not set in the environment variables`
+      );
     }
-
-    if (varName === 'VITE_KINDE_ISSUER_URL' || varName === 'VITE_KINDE_SITE_URL') {
+    if (varName === "KINDE_ISSUER_URL" || varName === "KINDE_SITE_URL") {
       env[varName] = trimTrailingSlash(varValue)!;
     } else {
       env[varName] = varValue;
     }
-  });
-
-  kindeOptionalEnvVars.forEach((varName) => {
-    env[varName] = getKindeEnvVar(varName);
   });
 
   return env as KindeEnv;

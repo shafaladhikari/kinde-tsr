@@ -1,7 +1,7 @@
 import { RefreshType, refreshToken, StorageKeys } from '@kinde/js-utils';
 import { jwtDecoder } from '@kinde/jwt-decoder';
 import { KindeConfig } from '../config';
-import { getSession } from './session';
+import { getServerSession } from './session';
 import { type KindeRoute, KindeRoutes } from './types';
 
 export const getLastPathFromRequest = (request: Request) => {
@@ -51,7 +51,7 @@ export const isTokenExpired = (token: string) => {
 };
 
 export const refreshTokenIfNecessary = async () => {
-  const session = getSession();
+  const session = getServerSession();
   const accessToken = await session.getSessionItem(StorageKeys.accessToken);
   const idToken = await session.getSessionItem(StorageKeys.idToken);
   if (!accessToken || !idToken) {
@@ -63,8 +63,8 @@ export const refreshTokenIfNecessary = async () => {
 
   if (isTokenExpired(accessToken as string) || isTokenExpired(idToken as string)) {
     const refreshResult = await refreshToken({
-      domain: KindeConfig.env.VITE_KINDE_ISSUER_URL,
-      clientId: KindeConfig.env.VITE_KINDE_CLIENT_ID,
+      domain: KindeConfig.KINDE_ISSUER_URL,
+      clientId: KindeConfig.KINDE_CLIENT_ID,
       refreshType: RefreshType.refreshToken,
     });
 
@@ -81,3 +81,4 @@ export const refreshTokenIfNecessary = async () => {
     message: 'Tokens refreshed',
   };
 };
+

@@ -6,8 +6,8 @@ import type { KindeRouteHandler } from '../../server/types';
 
 export const loginHandler: KindeRouteHandler = async () => {
   kindeLog.info('loginHandler: firing');
-  const authUrl = await generateAuthUrl(KindeConfig.env.VITE_KINDE_ISSUER_URL, IssuerRouteTypes.login, {
-    clientId: KindeConfig.env.VITE_KINDE_CLIENT_ID,
+  const authUrl = await generateAuthUrl(KindeConfig.KINDE_ISSUER_URL, IssuerRouteTypes.login, {
+    clientId: KindeConfig.KINDE_CLIENT_ID,
     redirectURL: KindeConfig.callbackUrl,
     responseType: 'code',
     scope: [Scopes.openid, Scopes.profile, Scopes.email, Scopes.offline_access],

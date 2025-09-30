@@ -12,5 +12,12 @@ export default defineConfig({
   outDir: './dist',
   dts: true,
   esbuildPlugins: [esbuildPluginFilePathExtensions({ esmExtension: 'js' })],
-  external: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', '@tanstack/start-client-core'],
+  external: [
+    'react',
+    'react-dom',
+    'react/jsx-runtime',
+    'react/jsx-dev-runtime',
+    '@tanstack/start-client-core',
+    'react-native',
+  ],
 });

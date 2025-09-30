@@ -1,3 +1,16 @@
-import { MemoryStorage } from "@kinde/js-utils";
+import { MemoryStorage, setActiveStorage } from '@kinde/js-utils';
 
-export const clientStore = new MemoryStorage();
+let clientSession: MemoryStorage | null = null;
+
+const initClientSession = () => {
+  if (clientSession) return;
+  clientSession = new MemoryStorage();
+  setActiveStorage(clientSession);
+};
+
+export const getClientSession = () => {
+  if (!clientSession) {
+    initClientSession();
+  }
+  return clientSession!;
+}

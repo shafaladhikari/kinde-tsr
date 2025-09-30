@@ -7,7 +7,7 @@ import { isKindeRoute, refreshTokenIfNecessary } from './utils';
 type KindeRequestMiddleware = ReturnType<ReturnType<typeof createMiddleware>['server']>;
 
 export const KindeAuthMiddleware: KindeRequestMiddleware = createMiddleware().server(async ({ request, next }) => {
-  kindeLog.info('KindeAuthMiddleware: firing');
+  kindeLog.info(`KindeAuthMiddleware: firing with path ${request.url}`);
   if (isKindeRoute(request)) {
     kindeLog.info('KindeAuthMiddleware: isKindeRoute, passing to next middleware');
     return next();
@@ -26,7 +26,7 @@ export const KindeAuthMiddleware: KindeRequestMiddleware = createMiddleware().se
   const refreshResult = await refreshTokenIfNecessary();
 
   if (!refreshResult.success) {
-    kindeLog.info('KindeAuthMiddleware: refresh token failed, redirecting to login');
+    kindeLog.info(`KindeAuthMiddleware: refresh token failed with error ${refreshResult.message}`);
     throw redirect({
       to: '/api/auth/login',
     });

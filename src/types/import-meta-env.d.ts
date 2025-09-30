@@ -1,8 +1,6 @@
 declare global {
   interface ImportMetaEnv {
-    readonly VITE_KINDE_CLIENT_ID: string;
-    readonly VITE_KINDE_ISSUER_URL: string;
-    readonly VITE_KINDE_SITE_URL: string;
+    [key: `VITE_${string}`]: string;
   }
 
   interface ImportMeta {

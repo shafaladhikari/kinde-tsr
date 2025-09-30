@@ -1,17 +1,17 @@
 import { setActiveStorage } from '@kinde/js-utils';
 import { TanstackStore } from './store';
 
-let session: TanstackStore | null = null;
+let serverSession: TanstackStore | null = null;
 
-const initSession = () => {
-  if (session) return;
-  session = new TanstackStore();
-  setActiveStorage(session);
+const initServerSession = () => {
+  if (serverSession) return;
+  serverSession = new TanstackStore();
+  setActiveStorage(serverSession);
 };
 
-export const getSession = () => {
-  if (!session) {
-    initSession();
+export const getServerSession = () => {
+  if (!serverSession) {
+    initServerSession();
   }
-  return session!;
-};
+  return serverSession!;
+}
