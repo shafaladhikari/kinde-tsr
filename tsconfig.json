@@ -12,6 +12,7 @@
         "jsx": "react-jsx",
         "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
+        "resolvePackageJsonImports": true,
         "lib": [
             "DOM",
             "DOM.Iterable",

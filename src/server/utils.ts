@@ -63,8 +63,8 @@ export const refreshTokenIfNecessary = async () => {
 
   if (isTokenExpired(accessToken as string) || isTokenExpired(idToken as string)) {
     const refreshResult = await refreshToken({
-      domain: KindeConfig.KINDE_ISSUER_URL,
-      clientId: KindeConfig.KINDE_CLIENT_ID,
+      domain: KindeConfig.env.KINDE_ISSUER_URL,
+      clientId: KindeConfig.env.KINDE_CLIENT_ID,
       refreshType: RefreshType.refreshToken,
     });
 
@@ -82,3 +82,6 @@ export const refreshTokenIfNecessary = async () => {
   };
 };
 
+export const validateClientSecret = (secret: string): boolean => {
+  return !!secret.match('^[a-zA-Z0-9]{40,60}$')?.length;
+};

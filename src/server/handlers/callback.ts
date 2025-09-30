@@ -8,10 +8,10 @@ export const callbackHandler: KindeRouteHandler = async (request) => {
   kindeLog.info('callbackHandler: firing');
   const exchangeResult = await exchangeAuthCode({
     urlParams: new URL(request.url).searchParams,
-    clientId: KindeConfig.KINDE_CLIENT_ID,
-    domain: KindeConfig.KINDE_ISSUER_URL,
+    clientId: KindeConfig.env.KINDE_CLIENT_ID,
+    domain: KindeConfig.env.KINDE_ISSUER_URL,
     redirectURL: KindeConfig.callbackUrl,
-    clientSecret: KindeConfig.KINDE_CLIENT_SECRET,
+    clientSecret: KindeConfig.env.KINDE_CLIENT_SECRET,
     autoRefresh: false,
   });
 

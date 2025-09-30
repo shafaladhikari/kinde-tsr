@@ -2,15 +2,15 @@ import { generateAuthUrl, IssuerRouteTypes, Scopes } from '@kinde/js-utils';
 import { redirect } from '@tanstack/react-router';
 import { KindeConfig } from '../../config';
 import { kindeLog } from '../../logger';
-import type { KindeRouteHandler } from '../../server/types';
+import type { KindeRouteHandler } from '../types';
 
-export const loginHandler: KindeRouteHandler = async () => {
-  kindeLog.info('loginHandler: firing');
+export const createOrgHandler: KindeRouteHandler = async () => {
+  kindeLog.info('createOrgHandler: firing');
   const authUrl = await generateAuthUrl(KindeConfig.env.KINDE_ISSUER_URL, IssuerRouteTypes.login, {
     clientId: KindeConfig.env.KINDE_CLIENT_ID,
     redirectURL: KindeConfig.callbackUrl,
     responseType: 'code',
-    
+    isCreateOrg: true,
     scope: [Scopes.openid, Scopes.profile, Scopes.email, Scopes.offline_access],
   });
   throw redirect({

@@ -10,6 +10,15 @@ export const kindeOptionalEnvVars = [
   "KINDE_DEBUG_MODE",
   "KINDE_POST_LOGIN_REDIRECT_URL",
   "KINDE_POST_LOGOUT_REDIRECT_URL",
+  "KINDE_AUTH_API_PATH",
+  "KINDE_AUTH_LOGIN_ROUTE",
+  "KINDE_AUTH_LOGOUT_ROUTE",
+  "KINDE_AUTH_REGISTER_ROUTE",
+  "KINDE_AUTH_CALLBACK_ROUTE",
+  "KINDE_AUTH_HEALTH_ROUTE",
+  "KINDE_AUTH_CREATE_ORG_ROUTE",
+  "KINDE_COOKIE_DOMAIN",
+  "KINDE_AUDIENCE"
 ] as const;
 export const kindeEnvVars = [
   ...kindeEssentialServerEnvVars,
@@ -31,7 +40,7 @@ export type KindeEnv = {
 };
 
 const getKindeEnvVar = (varName: KindeEnvVars) => {
-  return import.meta.env[`VITE_${varName}`] ?? process.env[varName];
+  return process.env[varName] || import.meta.env[`VITE_${varName}`];
 };
 
 export const getValidatedKindeEnv = () => {
@@ -44,6 +53,8 @@ export const getValidatedKindeEnv = () => {
           `[Kinde] ${varName} is not set in the environment variables`
         );
       }
+
+      env[varName] = varValue;
     });
   }
 

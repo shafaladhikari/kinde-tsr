@@ -17,8 +17,8 @@ export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProvi
 
   return (
     <KindeProvider
-      clientId={KindeConfig.KINDE_CLIENT_ID}
-      domain={KindeConfig.KINDE_ISSUER_URL}
+      clientId={KindeConfig.env.KINDE_CLIENT_ID}
+      domain={KindeConfig.env.KINDE_ISSUER_URL}
       redirectUri={KindeConfig.callbackUrl}
       store={getClientSession()}
       logoutUri={KindeConfig.logoutUrl}

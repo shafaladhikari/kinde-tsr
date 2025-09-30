@@ -1,17 +1,21 @@
 import { createServerOnlyFn } from '@tanstack/react-start';
-import { callbackHandler } from '../../server/handlers/callback';
-import { loginHandler } from '../../server/handlers/login';
-import { logoutHandler } from '../../server/handlers/logout';
-import { setupHandler } from '../../server/handlers/setup';
-import { getServerSession } from '../../server/session';
-import type { KindeRouteHandlerMap } from '../../server/types';
-import { getKindeRouteFromRequest } from '../../server/utils';
+import { callbackHandler } from './callback';
+import { loginHandler } from './login';
+import { logoutHandler } from './logout';
+import { getServerSession } from '../session';
+import type { KindeRouteHandlerMap } from '../types';
+import { getKindeRouteFromRequest } from '../utils';
+import { registerHandler } from './register';
+import { createOrgHandler } from './create-org';
+import { healthHandler } from './health';
 
 const RouteMap: KindeRouteHandlerMap = {
   login: loginHandler,
   logout: logoutHandler,
   callback: callbackHandler,
-  setup: setupHandler,
+  register: registerHandler,
+  "create-org": createOrgHandler,
+  health: healthHandler,
 };
 
 export const KindeAuthHandler = createServerOnlyFn(async (request: Request) => {
