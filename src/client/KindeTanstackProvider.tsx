@@ -11,8 +11,6 @@ export type KindeTanstackProviderProps = {
 export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProviderProps) => {
   const { loading } = useSessionSync();
 
-  console.log('KindeConfig', KindeConfig);
-
   if (loading) {
     return null;
   }

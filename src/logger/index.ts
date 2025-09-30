@@ -1,28 +1,28 @@
 import { KindeConfig } from '../config';
 
 export const kindeLog = {
-  info: (message: string) => {
+  info: (message?: any, ...optionalParams: any[]) => {
     if (!KindeConfig.isDebugMode) {
       return;
     }
-    console.log(`[Kinde] ${message}`);
+    console.log(`[Kinde] ${message}`, ...optionalParams);
   },
-  error: (message: string) => {
+  error: (message?: any, ...optionalParams: any[]) => {
     if (!KindeConfig.isDebugMode) {
       return;
     }
-    console.error(`[Kinde] ${message}`);
+    console.error(`[Kinde] ${message}`, ...optionalParams);
   },
-  warn: (message: string) => {
+  warn: (message?: any, ...optionalParams: any[]) => {
     if (!KindeConfig.isDebugMode) {
       return;
     }
-    console.warn(`[Kinde] ${message}`);
+    console.warn(`[Kinde] ${message}`, ...optionalParams);
   },
-  debug: (message: string) => {
+  debug: (message?: any, ...optionalParams: any[]) => {
     if (!KindeConfig.isDebugMode) {
       return;
     }
-    console.debug(`[Kinde] ${message}`);
+    console.debug(`[Kinde] ${message}`, ...optionalParams);
   },
 };
