@@ -3,17 +3,13 @@ Official Kinde SDK for [TanStack Start](https://tanstack.com/start) - a full-sta
 
 ## Installation
 ```bash
-npm  install  @kinde/kinde-auth-tanstack-start
-# or
-pnpm  add  @kinde/kinde-auth-tanstack-start
-# or
-yarn  add  @kinde/kinde-auth-tanstack-start
+nypm add @kinde/tsr
 ```
 
 ## Prerequisites
 - A [Kinde](https://kinde.com/) account
 - TanStack Start project (requires `@tanstack/react-router` and `@tanstack/react-start` v1.132.25 or higher)
-- 
+
 ## Environment Variables
 Create a `.env` file in your project root with the following variables:
 ```env
