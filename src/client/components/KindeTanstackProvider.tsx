@@ -1,4 +1,5 @@
 import { KindeProvider } from '@kinde-oss/kinde-auth-react';
+import { ClientOnly } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { KindeConfig } from '../../config';
 import { getClientSession } from '../store';
@@ -6,12 +7,21 @@ import { useSessionSync } from '../use-store-sync';
 
 export type KindeTanstackProviderProps = {
   children: ReactNode;
+  waitForInitialLoad?: boolean;
 };
 
-export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProviderProps) => {
+export const KindeTanstackProvider = ({ children, waitForInitialLoad }: KindeTanstackProviderProps) => {
+  return (
+    <ClientOnly>
+      <KindeProviderClient waitForInitialLoad={waitForInitialLoad}>{children}</KindeProviderClient>
+    </ClientOnly>
+  );
+};
+
+const KindeProviderClient = ({ children, waitForInitialLoad }: KindeTanstackProviderProps) => {
   const { loading } = useSessionSync();
 
-  if (loading) {
+  if (loading && waitForInitialLoad) {
     return null;
   }
 
@@ -22,7 +32,7 @@ export const KindeTanstackProvider = ({ children, ...props }: KindeTanstackProvi
       redirectUri={KindeConfig.callbackUrl}
       store={getClientSession()}
       logoutUri={KindeConfig.logoutUrl}
-      {...props}
+      forceChildrenRender
     >
       {children}
     </KindeProvider>
