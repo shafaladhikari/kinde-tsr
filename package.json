@@ -1,5 +1,5 @@
 {
-  "name": "@kinde/kinde-auth-tanstack-start",
+  "name": "@kinde/tsr",
   "version": "0.0.2-0",
   "type": "module",
   "sideEffects": false,
