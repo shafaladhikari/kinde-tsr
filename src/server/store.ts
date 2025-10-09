@@ -1,6 +1,8 @@
-import { SessionBase, type SessionManager, StorageKeys, splitString, storageSettings } from '@kinde/js-utils';
+import { SessionBase, type SessionManager, type StorageKeys, splitString, storageSettings } from '@kinde/js-utils';
 import { deleteCookie, getCookie, getCookies, setCookie } from '@tanstack/react-start/server';
 import { KindeConfig } from '../config';
+
+const TWENTY_NINE_DAYS = 2505600;
 
 export class TanstackStore<V extends string = StorageKeys> extends SessionBase<V> implements SessionManager<V> {
   async destroySession(): Promise<void> {
@@ -17,6 +19,7 @@ export class TanstackStore<V extends string = StorageKeys> extends SessionBase<V
     if (typeof itemValue === 'string') {
       splitString(itemValue, storageSettings.maxLength).forEach((splitValue, index) => {
         setCookie(`${storageSettings.keyPrefix}${itemKey}${index}`, splitValue, {
+          maxAge: TWENTY_NINE_DAYS,
           domain: KindeConfig.cookieDomain,
           sameSite: 'lax',
           httpOnly: true,
@@ -31,7 +34,6 @@ export class TanstackStore<V extends string = StorageKeys> extends SessionBase<V
 
   async getSessionItem(itemKey: V | StorageKeys): Promise<unknown | null> {
     const cookies = getCookies();
-
     if (!cookies[`${storageSettings.keyPrefix}${itemKey}0`]) {
       return null;
     }
