@@ -4,9 +4,9 @@ import { KindeConfig } from '../config';
 
 // TODO:
 // Temporary fix due to lack of type export
-type HasParams = Parameters<typeof has>[0];
+export type HasParams = Parameters<typeof has>[0];
 
-type ProtectOptions = {
+export type ProtectOptions = {
   has: HasParams;
   redirectTo: string;
 };
