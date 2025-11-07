@@ -4,24 +4,29 @@ import { createMiddleware } from '@tanstack/react-start';
 import { KindeConfig } from '../../config';
 import { kindeLog } from '../../logger';
 import { checkSession } from '../check-session';
-import type { HasParams } from '../protect';
 import { getServerSession } from '../session';
 import { isKindeRoute } from '../utils';
 import { matchRoutes } from './utils';
 
-export type KindeGlobalMiddlewareRoute = {
+// TODO:
+// Temporary fix due to lack of type export
+type HasParams = Parameters<typeof has>[0];
+
+export type KindeRouteRule = {
   path: string;
   has?: HasParams;
-  redirectTo?: string;
+  redirectTo: string;
 };
 
 export type KindeGlobalMiddlewareOptions = {
-  protectedRoutes?: KindeGlobalMiddlewareRoute[];
+  routeRules?: KindeRouteRule[];
   returnToCurrentPage?: boolean;
 };
 
 export const createKindeGlobalMiddleware = (options: KindeGlobalMiddlewareOptions) => {
   return createMiddleware().server(async ({ request, next }) => {
+    KindeConfig.routeRules = options.routeRules ?? [];
+
     const session = getServerSession();
     kindeLog.info(`KindeAuthMiddleware: firing with path ${request.url}`);
     if (isKindeRoute(request)) {
@@ -29,7 +34,7 @@ export const createKindeGlobalMiddleware = (options: KindeGlobalMiddlewareOption
       return next();
     }
 
-    const { isOnProtectedRoute, matchedRoutes } = matchRoutes(request, options.protectedRoutes ?? []);
+    const { isOnProtectedRoute, matchedRoutes } = matchRoutes(new URL(request.url).pathname, options.routeRules ?? []);
 
     if (isOnProtectedRoute) {
       for (const route of matchedRoutes) {
@@ -47,14 +52,15 @@ export const createKindeGlobalMiddleware = (options: KindeGlobalMiddlewareOption
 
     kindeLog.info('KindeAuthMiddleware: refreshing token (if necessary)');
     const checkSessionResult = await checkSession();
+    const firstMatchingRedirect = matchedRoutes.find((route) => route.redirectTo)?.redirectTo;
+    const firstMatchingPermission = matchedRoutes.find((route) => route.has)?.has;
 
     if (checkSessionResult.message !== 'CHECK_SUCCESS') {
       kindeLog.info(`KindeAuthMiddleware: refresh token failed with error ${checkSessionResult.message}`);
 
       if (isOnProtectedRoute) {
-        const firstMatchingRoute = matchedRoutes.find((route) => route.redirectTo);
         throw redirect({
-          href: firstMatchingRoute?.redirectTo ?? KindeConfig.loginUrl,
+          href: firstMatchingRedirect ?? KindeConfig.loginUrl,
         });
       }
 
@@ -70,10 +76,13 @@ export const createKindeGlobalMiddleware = (options: KindeGlobalMiddlewareOption
 
     const user = await getUserProfile();
 
+    console.log('KindeAuthMiddleware: middleware nexting');
+
     return next({
       context: {
         user,
         isAuthenticated: true,
+        permissions: firstMatchingPermission,
       },
     });
   });

@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { KindeConfig } from '../../config';
 
-export const LogoutLink = ({ children }: { children: React.ReactNode }) => {
+export const RegisterLink = ({ children }: { children: React.ReactNode }) => {
     return (
-        <Link to={KindeConfig.logoutUrl}>
+        <Link to={KindeConfig.registerUrl}>
             {children}
         </Link>
     )

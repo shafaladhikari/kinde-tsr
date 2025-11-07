@@ -1,24 +1,19 @@
-import { has, isAuthenticated } from '@kinde/js-utils';
 import { redirect } from '@tanstack/react-router';
-import { KindeConfig } from '../config';
+import { createServerFn } from '@tanstack/react-start';
+import { kindeLog } from '../logger';
+import { evaluateRouteRule } from './middleware/utils';
 
-// TODO:
-// Temporary fix due to lack of type export
-export type HasParams = Parameters<typeof has>[0];
+const evaluateRoute = createServerFn()
+  .inputValidator((path: string) => path)
+  .handler(async (ctx) => {
+    return await evaluateRouteRule(ctx.data);
+  });
 
-export type ProtectOptions = {
-  has: HasParams;
-  redirectTo: string;
-};
-
-export const protect = async (options: ProtectOptions) => {
-  const isAuthed = await isAuthenticated();
-  if (!isAuthed) {
-    throw redirect({ to: options.redirectTo ?? KindeConfig.loginUrl });
+export const protect = async (path: string) => {
+  kindeLog.info(`protect: protect has been called with path ${path}`);
+  const result = await evaluateRoute({ data: path });
+  if (!result.access) {
+    kindeLog.info(`protect: no access, redirecting to ${result.redirectTo}`);
+    throw redirect({ to: result.redirectTo });
   }
-  const canView = await has(options.has);
-  if (!canView) {
-    throw redirect({ to: options.redirectTo ?? KindeConfig.loginUrl });
-  }
-  return true;
 };
