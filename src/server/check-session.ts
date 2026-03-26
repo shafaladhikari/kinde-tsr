@@ -19,13 +19,22 @@ type CheckSessionPayload =
 type CheckSessionResult = Promise<CheckSessionPayload>;
 
 export const checkSession = async (): CheckSessionResult => {
+  const session = getServerSession();
+  const sessionRefreshToken = await session.getSessionItem(StorageKeys.refreshToken);
+  
   if (
     await isTokenExpired({
-      threshold: 20000,
+      threshold: 2,
     })
   ) {
-    console.log(
-      `Calling refreshToken with domain ${KindeConfig.env.KINDE_ISSUER_URL} and clientId ${KindeConfig.env.KINDE_CLIENT_ID}`,
+    if(!sessionRefreshToken) {
+      kindeLog.info('checkSession: access token expired but no refresh token found, user is unauthenticated');
+      return {
+        message: 'UNAUTHENTICATED',
+      };
+    }
+    kindeLog.info(
+      `checkSession: Calling refreshToken with domain ${KindeConfig.env.KINDE_ISSUER_URL} and clientId ${KindeConfig.env.KINDE_CLIENT_ID}`,
     );
     const refreshResult = await refreshToken({
       domain: KindeConfig.env.KINDE_ISSUER_URL,
@@ -48,12 +57,10 @@ export const checkSession = async (): CheckSessionResult => {
       refreshToken: refreshResult.refreshToken!,
     };
   } else {
-    const session = getServerSession();
-    const accessToken = await session.getSessionItem(StorageKeys.accessToken);
-    const idToken = await session.getSessionItem(StorageKeys.idToken);
-    const refreshToken = await session.getSessionItem(StorageKeys.refreshToken);
+    const sessionAccessToken = await session.getSessionItem(StorageKeys.accessToken);
+    const sessionIdToken = await session.getSessionItem(StorageKeys.idToken);
 
-    if (!accessToken || !idToken || !refreshToken) {
+    if (!sessionAccessToken || !sessionIdToken || !sessionRefreshToken) {
       kindeLog.info('checkSession: no session tokens found, user is unauthenticated');
       return {
         message: 'UNAUTHENTICATED',
@@ -62,9 +69,9 @@ export const checkSession = async (): CheckSessionResult => {
 
     return {
       message: 'CHECK_SUCCESS',
-      idToken: idToken as string,
-      accessToken: accessToken as string,
-      refreshToken: refreshToken as string,
+      idToken: sessionIdToken as string,
+      accessToken: sessionAccessToken as string,
+      refreshToken: sessionRefreshToken as string,
     };
   }
 };
