@@ -1,225 +1,284 @@
-# Kinde Auth SDK for TanStack Start
-Official Kinde SDK for [TanStack Start](https://tanstack.com/start) - a full-stack React framework built on TanStack Router.
+# `@kinde/tsr`
+
+Kinde Auth for [TanStack Start](https://tanstack.com/start).
+
+This package wires Kinde into a TanStack Start app with:
+
+- a client provider that hydrates the Kinde React SDK from the server session
+- ready-made login, logout, and register links
+- a catch-all auth route handler for your Kinde endpoints
+- a `protect()` helper for TanStack Router `beforeLoad`
+- re-exported server utilities from `@kinde/js-utils`
 
 ## Installation
+
 ```bash
-nypm add @kinde/tsr
+npm install @kinde/tsr
 ```
 
-## Prerequisites
-- A [Kinde](https://kinde.com/) account
-- TanStack Start project (requires `@tanstack/react-router` and `@tanstack/react-start` v1.132.25 or higher)
+This package expects a TanStack Start app with:
 
-## Environment Variables
-Create a `.env` file in your project root with the following variables:
+- `@tanstack/react-router` `^1.167.8`
+- `@tanstack/react-start` `^1.167.8`
+
+## Import paths
+
+Use the client entrypoint for components and hooks:
+
+```tsx
+import { KindeTanstackProvider, LoginLink, LogoutLink, RegisterLink, useKindeAuth } from '@kinde/tsr'
+```
+
+Use the server entrypoint for auth routes and protection:
+
+```tsx
+import { kindeAuthHandler, protect } from '@kinde/tsr/server'
+```
+
+## Quick start
+
+### 1. Add your environment variables
+
+Create a `.env` file in your app:
+
 ```env
 VITE_KINDE_CLIENT_ID=your_kinde_client_id
 KINDE_CLIENT_SECRET=your_kinde_client_secret
-VITE_KINDE_ISSUER_URL=https://your_subdomain.kinde.com
+VITE_KINDE_ISSUER_URL=https://your-subdomain.kinde.com
 VITE_KINDE_SITE_URL=http://localhost:3000
+
+# Optional but commonly used
+KINDE_POST_LOGIN_REDIRECT_URL=http://localhost:3000/protected
+KINDE_POST_LOGOUT_REDIRECT_URL=http://localhost:3000
 ```
-> **Note:** Variables prefixed with `VITE_` are exposed to the client-side. The `KINDE_CLIENT_SECRET` should only be used on the server-side.
 
-### Getting your Kinde credentials
+`KINDE_CLIENT_SECRET` must stay server-only. Do not prefix it with `VITE_`.
 
-1. Go to your [Kinde dashboard](https://app.kinde.com/)
-2. Navigate to **Settings > Applications**
-3. Select your application or create a new one
-4. Copy your credentials:
--  **Client ID** → `VITE_KINDE_CLIENT_ID`
--  **Client secret** → `KINDE_CLIENT_SECRET`
--  **Domain** → `VITE_KINDE_ISSUER_URL`
-5. Set your **Site URL** (e.g., `http://localhost:3000` for development) → `VITE_KINDE_SITE_URL`
-6. Configure your callback URLs in Kinde:
-- Allowed callback URLs: `http://localhost:3000/api/auth/callback`
-- Allowed logout redirect URLs: `http://localhost:3000`
+### 2. Wrap your app with `KindeTanstackProvider`
 
-## Setup
-### 1. Wrap your application with KindeTanstackProvider
-In your root route file (typically `src/routes/__root.tsx`), wrap your application with the `KindeTanstackProvider`:
+Add the provider near the root of your app, usually in `src/routes/__root.tsx`:
+
 ```tsx
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import { KindeTanstackProvider } from "@kinde/kinde-auth-tanstack-start";
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { KindeTanstackProvider } from '@kinde/tsr'
 
-export const Route = createRootRouteWithContext()({
-  component: RootComponent,
-});
+export const Route = createRootRoute({
+  shellComponent: RootDocument,
+})
 
-function RootComponent() {
+function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head>{/* Your head content */}</head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
-        <KindeTanstackProvider>
-          <Outlet />
-        </KindeTanstackProvider>
+        <KindeTanstackProvider>{children}</KindeTanstackProvider>
+        <Scripts />
       </body>
     </html>
-  );
+  )
 }
 ```
-### 2. Create auth handler route
-Create a catch-all auth route at `src/routes/api.auth.$.ts`:
+
+If you want to wait until the initial session sync has finished before rendering children, pass `waitForInitialLoad`.
+
+### 3. Add the auth catch-all route
+
+Create `src/routes/api.auth.$.tsx` if you are using the default auth path:
 
 ```tsx
-import { kindeAuthHandler } from "@kinde/kinde-auth-tanstack-start/server";
-import { createFileRoute } from "@tanstack/react-router";
+import { kindeAuthHandler } from '@kinde/tsr/server'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/api/auth/$")({
+export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {
       GET: async ({ request }) => kindeAuthHandler(request),
+      POST: async ({ request }) => kindeAuthHandler(request),
     },
   },
-});
+})
 ```
 
-This route handles all authentication flows including:
--  `/api/auth/login`
--  `/api/auth/logout`
--  `/api/auth/callback`
--  `/api/auth/register`
--  `/api/auth/create-org`
+With the default configuration, this single route handles:
 
-## Usage
-### Client-side authentication
-Use the `useKindeAuth` hook to access authentication state and user information:
+- `/api/auth/login`
+- `/api/auth/logout`
+- `/api/auth/callback`
+- `/api/auth/register`
+- `/api/auth/create-org`
+- `/api/auth/health`
+
+If you change `KINDE_AUTH_API_PATH`, the file route path must match that custom path.
+
+### 4. Use the client helpers
+
 ```tsx
-import {
-  useKindeAuth,
-  LoginLink,
-  LogoutLink,
-} from "@kinde/kinde-auth-tanstack-start";
+import { LoginLink, LogoutLink, RegisterLink, useKindeAuth } from '@kinde/tsr'
 
-function MyComponent() {
-  const { user, isAuthenticated, isLoading } = useKindeAuth();
+export function AuthButtons() {
+  const { isAuthenticated, isLoading, user } = useKindeAuth()
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
-  return (
+  return isAuthenticated ? (
     <div>
-      {isAuthenticated ? (
-        <>
-          <p>Welcome, {user?.givenName}!</p>
-
-          <LogoutLink>Logout</LogoutLink>
-        </>
-      ) : (
-        <LoginLink>Sign in</LoginLink>
-      )}
+      <p>Welcome, {user?.givenName ?? 'friend'}.</p>
+      <LogoutLink>Sign out</LogoutLink>
     </div>
-  );
+  ) : (
+    <div>
+      <LoginLink>Sign in</LoginLink>
+      <RegisterLink>Create account</RegisterLink>
+    </div>
+  )
 }
 ```
 
-### Server-side authentication
-Use server functions to access user data in loaders:
+### 5. Protect routes with `protect()`
+
+For routes that only require an authenticated user:
 
 ```tsx
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import { protect } from '@kinde/tsr/server'
 
-import {
-  getUserProfile,
-  isAuthenticated,
-} from "@kinde/kinde-auth-tanstack-start/server";
-
-export const Route = createFileRoute("/dashboard")({
-  component: Dashboard,
-
-  loader: async () => {
-    const user = await getUserProfile();
-
-    const isAuthed = await isAuthenticated();
-
-    return {
-      user,
-
-      isAuthed,
-    };
+export const Route = createFileRoute('/protected')({
+  beforeLoad: async () => {
+    await protect()
   },
-});
-
-function Dashboard() {
-  const { user } = Route.useLoaderData();
-
-  return <div>Welcome, {user?.givenName}!</div>;
-}
+})
 ```
 
-### Protected routes
-Protect routes by combining `KindeAuthMiddleware` with the `protect` utility:
+For routes that need roles, permissions, feature flags, or billing entitlements:
+
 ```tsx
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import { protect } from '@kinde/tsr/server'
 
-import {
-  KindeAuthMiddleware,
-  protect,
-  getUserProfile,
-} from "@kinde/kinde-auth-tanstack-start/server";
-
-export const Route = createFileRoute("/protected")({
-  component: ProtectedPage,
-
-  server: {
-    middleware: [KindeAuthMiddleware], // Ensures user is logged in and token is refreshed
-  },
-
-  beforeLoad: () =>
-    protect({
+export const Route = createFileRoute('/protected/admin')({
+  beforeLoad: async () => {
+    await protect({
       has: {
-        permissions: ["read:protected"], // Required permissions
-
-        // roles: ['admin'], // Optional: required roles
-
-        // featureFlags: ['new-dashboard'] // Optional: required feature flags
-        // billingEntitlements: ['pro'] // Optional: required billing entitlements
+        roles: ['admin'],
+        permissions: ['read:admin'],
+        featureFlags: ['new-dashboard'],
+        billingEntitlements: ['pro'],
+        forceApi: true,
       },
-
-      redirectTo: "/", // Redirect destination if access is denied, defaults to KINDE_SITE_URL
-    }),
-
-  loader: async () => {
-    const user = await getUserProfile();
-
-    return { user };
+      redirectTo: '/',
+    })
   },
-});
-
-function ProtectedPage() {
-  const { user } = Route.useLoaderData();
-
-  return <div>Protected content for {user?.givenName}</div>;
-}
+})
 ```
-The `protect` utility checks if the user has the required permissions/roles/feature flags/billing entitlements and redirects them if they don't have access.
 
-## Development
-For local development, ensure your environment variables are set correctly:
-```env
-VITE_KINDE_CLIENT_ID=your_kinde_client_id
-KINDE_CLIENT_SECRET=your_kinde_client_secret
-VITE_KINDE_ISSUER_URL=https://your_subdomain.kinde.com
-VITE_KINDE_SITE_URL=http://localhost:3000
+To protect multiple routes, we recommend using this utility inside a layout (optionally a pathless one):
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { protect } from '@kinde/tsr/server'
+
+// Anything under the `_auth` pathless layout is now protected.
+export const Route = createFileRoute('/_auth')({
+  beforeLoad: async () => {
+    await protect()
+  },
+})
 ```
-Make sure to configure the callback URLs in your Kinde dashboard to match your local development URL.
 
-## Production
-When deploying to production:
-1. Update your environment variables with production values
-2. Update `VITE_KINDE_SITE_URL` to your production domain
-3. Add your production domain to the allowed callback URLs in Kinde dashboard:
-- Allowed callback URLs: `https://yourdomain.com/api/auth/callback`
-- Allowed logout redirect URLs: `https://yourdomain.com`
+`protect()` throws a TanStack redirect when the user is unauthenticated or does not satisfy the `has` checks. `redirectTo` defaults to `/`.
+
+## Environment reference
+
+The SDK reads required client-facing values from `VITE_*` variables and reads server-only values from regular environment variables.
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `VITE_KINDE_CLIENT_ID` | Yes | - | Kinde application client ID used by the client SDK and auth handlers. |
+| `KINDE_CLIENT_SECRET` | Yes | - | Kinde application client secret used during the auth code exchange and refresh flow. |
+| `VITE_KINDE_ISSUER_URL` | Yes | - | Your Kinde domain, for example `https://your-subdomain.kinde.com`. |
+| `VITE_KINDE_SITE_URL` | Yes | - | Base URL for your TanStack Start app. |
+| `KINDE_DEBUG_MODE` | No | `false` | Enables detailed SDK logging and makes the health route return config details instead of plain `OK`. Useful for support. |
+| `KINDE_POST_LOGIN_REDIRECT_URL` | No | `VITE_KINDE_SITE_URL` | Where to send users after a successful callback. |
+| `KINDE_POST_LOGOUT_REDIRECT_URL` | No | `VITE_KINDE_SITE_URL` | Where to send users after logout. |
+| `KINDE_AUTH_API_PATH` | No | `api/auth` | Base path for the catch-all auth route. |
+| `KINDE_AUTH_LOGIN_ROUTE` | No | `login` | Login route segment. |
+| `KINDE_AUTH_LOGOUT_ROUTE` | No | `logout` | Logout route segment. |
+| `KINDE_AUTH_REGISTER_ROUTE` | No | `register` | Register route segment. |
+| `KINDE_AUTH_CALLBACK_ROUTE` | No | `callback` | Callback route segment. |
+| `KINDE_AUTH_HEALTH_ROUTE` | No | `health` | Health-check route segment. |
+| `KINDE_AUTH_CREATE_ORG_ROUTE` | No | `create-org` | Create-organization route segment. |
+| `KINDE_COOKIE_DOMAIN` | No | unset | Optional cookie domain for the server-side session cookies. |
+
+## Client API
+
+`@kinde/tsr` exports:
+
+| Export | Description |
+| --- | --- |
+| `KindeTanstackProvider` | Wraps the Kinde React provider and syncs the server session into the client store. |
+| `useKindeAuth` | Re-exported from `@kinde-oss/kinde-auth-react`. |
+| `LoginLink` | TanStack Router `Link` pointed at the configured login route. |
+| `LogoutLink` | TanStack Router `Link` pointed at the configured logout route. |
+| `RegisterLink` | TanStack Router `Link` pointed at the configured register route. |
+| `PortalLink` | Re-exported from `@kinde-oss/kinde-auth-react/components`. |
+
+## Server API
+
+`@kinde/tsr/server` exports:
+
+| Export | Description |
+| --- | --- |
+| `kindeAuthHandler(request)` | Dispatches the catch-all auth request to the correct Kinde route handler. |
+| `protect(options?)` | Guards TanStack routes from `beforeLoad`. |
+| `@kinde/js-utils` re-exports | Token, user, org, permission, entitlement, and helper utilities from the core Kinde JS utilities package. |
+
+### About the `@kinde-oss/kinde-auth-react` re-exports
+
+This package intentionally re-exports the client utilities from `@kinde-oss/kinde-auth-react`, but the detailed API reference belongs there. Rather than duplicating that documentation here, use the `@kinde-oss/kinde-auth-react` docs for helper-by-helper guidance:
+
+- [`@kinde-oss/kinde-auth-react` repository](https://github.com/kinde-oss/kinde-auth-react)
+- [React SDK documentation](https://docs.kinde.com/developer-tools/sdks/frontend/react-sdk/)
+
+### About the `@kinde/js-utils` re-exports
+
+This package intentionally re-exports the server utilities from `@kinde/js-utils`, but the detailed API reference belongs there. Rather than duplicating that documentation here, use the `@kinde/js-utils` docs for helper-by-helper guidance:
+
+- [`@kinde/js-utils` repository](https://github.com/kinde-oss/js-utils)
+
+## Health route and debugging
+
+The health route is available through your auth API path:
+
+```text
+/api/auth/health
+```
+
+Behavior:
+
+- when `KINDE_DEBUG_MODE` is unset or false, it returns `OK`
+- when `KINDE_DEBUG_MODE=true`, it returns JSON describing the resolved config and route URLs
+
+This is useful for verifying your environment variables and generated auth URLs during setup.
+
+## Kinde dashboard checklist
+
+Make sure the following URLs are configured in Kinde for your environment:
+
+- Allowed callback URLs: `http://localhost:3000/api/auth/callback`
+- Allowed logout redirect URLs: `http://localhost:3000`
+
+If you customize the auth path or route names, update these values to match.
 
 ## Resources
-- [Kinde Documentation](https://kinde.com/docs/)
-- [TanStack Start Documentation](https://tanstack.com/start)
-- [TanStack Router Documentation](https://tanstack.com/router)
+
+- [TanStack Start documentation](https://tanstack.com/start)
+- [TanStack Router documentation](https://tanstack.com/router)
+- [Kinde documentation](https://kinde.com/docs/)
 
 ## Support
-For issues and questions:
 
-- [GitHub Issues](https://github.com/kinde-oss/kinde-auth-tsr/issues)
-- [Kinde Support](https://kinde.com/support/)
+- [GitHub issues](https://github.com/kinde-oss/kinde-tsr/issues)
+- [Kinde support](https://kinde.com/support/)
