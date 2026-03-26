@@ -1,4 +1,4 @@
-import { useKindeAuth as useKindeAuthReact, type KindeContextProps} from '@kinde-oss/kinde-auth-react';
+import { type KindeContextProps, useKindeAuth as useKindeAuthReact } from '@kinde-oss/kinde-auth-react';
 
 export const useKindeAuth = (): Omit<KindeContextProps, 'register'> => {
   const { login, logout, register, ...rest } = useKindeAuthReact();

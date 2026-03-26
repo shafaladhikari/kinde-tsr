@@ -1,6 +1,6 @@
+import { has } from '@kinde/js-utils';
 import { redirect } from '@tanstack/react-router';
 import { kindeLog } from '../logger';
-import { has } from '@kinde/js-utils';
 import { getSession } from './fns/get-session';
 
 // TODO:
@@ -10,7 +10,6 @@ export type ProtectParams = {
   has?: HasParams;
   redirectTo?: string;
 };
-
 
 export const protect = async (params?: ProtectParams) => {
   kindeLog.info('protect: Starting protection check');
@@ -26,10 +25,9 @@ export const protect = async (params?: ProtectParams) => {
   if (params?.has) {
     kindeLog.info('protect: User provided hasParams, checking if user meets the required conditions', params.has);
     let doesHave = false;
-    try { 
+    try {
       doesHave = await has(params.has);
-    }
-    catch (error) {
+    } catch (error) {
       kindeLog.error('protect: Error occurred while checking user permissions', error);
       throw redirect({
         to: params?.redirectTo ?? '/',
@@ -43,4 +41,4 @@ export const protect = async (params?: ProtectParams) => {
       });
     }
   }
-}
+};

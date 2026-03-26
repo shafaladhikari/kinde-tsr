@@ -15,18 +15,19 @@ type CheckSessionResult = Promise<
       idToken: string;
       accessToken: string;
       refreshToken: string;
-    }>;
+    }
+>;
 
 export const checkSession = async (): CheckSessionResult => {
   const session = getServerSession();
   const sessionRefreshToken = await session.getSessionItem(StorageKeys.refreshToken);
-  
+
   if (
     await isTokenExpired({
       threshold: 2,
     })
   ) {
-    if(!sessionRefreshToken) {
+    if (!sessionRefreshToken) {
       kindeLog.info('checkSession: access token expired but no refresh token found, user is unauthenticated');
       return {
         message: 'UNAUTHENTICATED',
