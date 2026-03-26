@@ -15,20 +15,6 @@ This package expects a TanStack Start app with:
 - `@tanstack/react-router` `^1.167.8`
 - `@tanstack/react-start` `^1.167.8`
 
-## Import paths
-
-Use the client entrypoint for components and hooks:
-
-```tsx
-import { KindeTanstackProvider, LoginLink, LogoutLink, RegisterLink, useKindeAuth } from '@kinde/tsr'
-```
-
-Use the server entrypoint for auth routes and protection:
-
-```tsx
-import { kindeAuthHandler, protect } from '@kinde/tsr/server'
-```
-
 ## Quick start
 
 ### 1. Add your environment variables
