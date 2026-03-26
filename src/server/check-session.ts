@@ -1,6 +1,7 @@
-import { isTokenExpired, RefreshType, refreshToken } from '@kinde/js-utils';
+import { isTokenExpired, RefreshType, refreshToken, StorageKeys } from '@kinde/js-utils';
 import { KindeConfig } from '../config';
 import { kindeLog } from '../logger';
+import { getServerSession } from './session';
 
 type CheckSessionPayload =
   | {
@@ -46,9 +47,24 @@ export const checkSession = async (): CheckSessionResult => {
       accessToken: refreshResult.accessToken!,
       refreshToken: refreshResult.refreshToken!,
     };
-  }
+  } else {
+    const session = getServerSession();
+    const accessToken = await session.getSessionItem(StorageKeys.accessToken);
+    const idToken = await session.getSessionItem(StorageKeys.idToken);
+    const refreshToken = await session.getSessionItem(StorageKeys.refreshToken);
 
-  return {
-    message: 'UNAUTHENTICATED',
-  };
+    if (!accessToken || !idToken || !refreshToken) {
+      kindeLog.info('checkSession: no session tokens found, user is unauthenticated');
+      return {
+        message: 'UNAUTHENTICATED',
+      };
+    }
+
+    return {
+      message: 'CHECK_SUCCESS',
+      idToken: idToken as string,
+      accessToken: accessToken as string,
+      refreshToken: refreshToken as string,
+    };
+  }
 };
