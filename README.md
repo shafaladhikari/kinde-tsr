@@ -2,13 +2,7 @@
 
 Kinde Auth for [TanStack Start](https://tanstack.com/start).
 
-This package wires Kinde into a TanStack Start app with:
-
-- a client provider that hydrates the Kinde React SDK from the server session
-- ready-made login, logout, and register links
-- a catch-all auth route handler for your Kinde endpoints
-- a `protect()` helper intended to be used in a routes `beforeLoad`
-- re-exported server utilities from `@kinde/js-utils`
+This package introduces first-party support [Kinde auth](https://www.kinde.com/) in a TanStack Start app.
 
 ## Installation
 
