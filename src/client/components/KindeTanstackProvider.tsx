@@ -1,5 +1,5 @@
-import { storageSettings } from '@kinde/js-utils';
-import { KindeProvider } from '@kinde-oss/kinde-auth-react';
+import { KindeContext, KindeProvider } from '@kinde-oss/kinde-auth-react';
+import { storageSettings } from '@kinde-oss/kinde-auth-react/utils';
 import { ClientOnly } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { KindeConfig } from '../../config';
@@ -11,9 +11,13 @@ export type KindeTanstackProviderProps = {
   waitForInitialLoad?: boolean;
 };
 
+const FallbackKindeContextProvider = ({ children }: { children: ReactNode }) => {
+  return <KindeContext.Provider value={null}>{children}</KindeContext.Provider>;
+};
+
 export const KindeTanstackProvider = ({ children, waitForInitialLoad }: KindeTanstackProviderProps) => {
   return (
-    <ClientOnly>
+    <ClientOnly fallback={<FallbackKindeContextProvider>{children}</FallbackKindeContextProvider>}>
       <KindeProviderClient waitForInitialLoad={waitForInitialLoad}>{children}</KindeProviderClient>
     </ClientOnly>
   );
@@ -24,7 +28,7 @@ const KindeProviderClient = ({ children, waitForInitialLoad }: KindeTanstackProv
   storageSettings.onRefreshHandler = refreshHandler;
 
   if (loading && waitForInitialLoad) {
-    return null;
+    return <FallbackKindeContextProvider>{children}</FallbackKindeContextProvider>;
   }
 
   return (
