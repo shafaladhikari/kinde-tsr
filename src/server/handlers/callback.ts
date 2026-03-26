@@ -17,6 +17,9 @@ export const callbackHandler: KindeRouteHandler = async (request) => {
 
   if (!exchangeResult.success) {
     kindeLog.error(`callbackHandler encountered an error while exchanging auth code: ${exchangeResult.error}`);
+    throw redirect({
+      href: KindeConfig.postLogoutRedirectUrl
+    })
   }
 
   throw redirect({
