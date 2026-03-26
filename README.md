@@ -147,6 +147,7 @@ export const Route = createFileRoute('/protected/admin')({
         permissions: ['read:admin'],
         featureFlags: ['new-dashboard'],
         billingEntitlements: ['pro'],
+        // optionally force a Kinde API check as opposed to checking tokens
         forceApi: true,
       },
       redirectTo: '/',
@@ -168,7 +169,9 @@ export const Route = createFileRoute('/_auth')({
 })
 ```
 
-`protect()` throws a TanStack redirect when the user is unauthenticated or does not satisfy the `has` checks. `redirectTo` defaults to `/`.
+`protect()` throws a TanStack redirect when the user is unauthenticated or does not satisfy the `has` checks. We do **not** recommend wrapping `protect()` in a `try/catch` block, unless you plan on re-throwing the redirect.
+
+`redirectTo` defaults to `/`.
 
 ## Environment reference
 
