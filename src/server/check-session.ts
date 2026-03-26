@@ -3,7 +3,7 @@ import { KindeConfig } from '../config';
 import { kindeLog } from '../logger';
 import { getServerSession } from './session';
 
-type CheckSessionPayload =
+type CheckSessionResult = Promise<
   | {
       message: 'REFRESH_FAILED';
     }
@@ -15,8 +15,7 @@ type CheckSessionPayload =
       idToken: string;
       accessToken: string;
       refreshToken: string;
-    };
-type CheckSessionResult = Promise<CheckSessionPayload>;
+    }>;
 
 export const checkSession = async (): CheckSessionResult => {
   const session = getServerSession();

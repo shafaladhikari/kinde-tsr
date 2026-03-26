@@ -6,5 +6,4 @@ frameworkSettings.sdkVersion = version;
 
 export * from '@kinde/js-utils';
 export { kindeAuthHandler } from './handlers';
-export { createKindeGlobalMiddleware } from './middleware';
 export { protect } from './protect';

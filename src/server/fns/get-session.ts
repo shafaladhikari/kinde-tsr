@@ -18,14 +18,14 @@ type GetSessionResult = Promise<
 export const getSession = createServerFn().handler(async (): GetSessionResult => {
   const session = getServerSession();
   const checkSessionResult = await checkSession();
-  kindeLog.info(`fetchTokens: checkSessionResult is ${checkSessionResult}`);
+  kindeLog.info(`getSession: checkSessionResult is: `, checkSessionResult);
 
   if (checkSessionResult.message !== 'CHECK_SUCCESS') {
-    kindeLog.info(`fetchTokens: SESSION_TERMINATE`);
+    kindeLog.info(`getSession: SESSION_TERMINATE`);
     await session.destroySession();
     return { message: 'SESSION_TERMINATE' };
   }
-  kindeLog.info(`fetchTokens: SESSION_VALID`);
+  kindeLog.info(`getSession: SESSION_VALID`);
   await session.setItems({
     [StorageKeys.accessToken]: checkSessionResult.accessToken,
     [StorageKeys.idToken]: checkSessionResult.idToken,

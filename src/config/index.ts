@@ -1,5 +1,4 @@
 import { sanitizeUrl } from '@kinde/js-utils';
-import type { KindeRouteRule } from '../server/middleware';
 import { getValidatedKindeEnv, type KindeEnv } from './env';
 import { stringbool, trimTrailingSlash } from './utils';
 
@@ -16,7 +15,6 @@ type KindeConfig = {
   createOrgUrl: string;
   authApiPath: string;
   cookieDomain: string | undefined;
-  routeRules: KindeRouteRule[];
 };
 
 const buildKindeConfig = (): KindeConfig => {
@@ -40,7 +38,6 @@ const buildKindeConfig = (): KindeConfig => {
     createOrgUrl: buildKindeAuthUrl(env.KINDE_AUTH_CREATE_ORG_ROUTE ?? 'create-org'),
     authApiPath,
     cookieDomain: env.KINDE_COOKIE_DOMAIN ?? undefined,
-    routeRules: [],
   };
 };
 
