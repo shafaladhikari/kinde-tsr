@@ -2,6 +2,7 @@ import type { RefreshTokenResult } from '@kinde/js-utils';
 import { useCallback, useEffect, useState } from 'react';
 import { getSession } from '../../../server/fns/get-session';
 import { getClientSession } from '../../store';
+import { kindeLog } from '../../../logger';
 
 export const useSessionSync = () => {
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,7 @@ export const useSessionSync = () => {
   }, []);
 
   const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
-    console.log('refreshHandler: firing');
+    kindeLog.info('refreshHandler: firing');
     const session = getClientSession();
     const getSessionResult = await getSession();
 
