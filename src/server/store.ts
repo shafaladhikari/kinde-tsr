@@ -5,6 +5,7 @@ import { KindeConfig } from '../config';
 const TWENTY_NINE_DAYS = 2505600;
 
 export class TanstackStore<V extends string = StorageKeys> extends SessionBase<V> implements SessionManager<V> {
+  asyncStore = true;
   async destroySession(): Promise<void> {
     const cookies = getCookies();
     for (const key in cookies) {
