@@ -10,7 +10,9 @@ export const logoutHandler: KindeRouteHandler = async (_, session) => {
   const issuerUrl = KindeConfig.env.KINDE_ISSUER_URL;
   const postLogoutRedirectUrl = KindeConfig.postLogoutRedirectUrl;
   
-  const logoutEndpoint = `${issuerUrl}/logout?redirect=${postLogoutRedirectUrl}`;
+  const logoutUrl = new URL(`${issuerUrl}/logout`);
+  logoutUrl.searchParams.set('redirect', postLogoutRedirectUrl);
+  const logoutEndpoint = logoutUrl.toString();
 
   throw redirect({ href: logoutEndpoint });
 };
