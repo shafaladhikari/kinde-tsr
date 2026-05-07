@@ -1,5 +1,4 @@
 import { KindeContext, KindeProvider } from "@kinde-oss/kinde-auth-react";
-import type { KindeContextProps } from "@kinde-oss/kinde-auth-react";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
 import { ClientOnly } from "@tanstack/react-router";
 import type { ReactNode } from "react";
@@ -12,56 +11,14 @@ export type KindeTanstackProviderProps = {
   waitForInitialLoad?: boolean;
 };
 
-// Provided during SSR and while the client session is loading.
-// Must be non-null so useKindeAuth() doesn't throw "must be used within a KindeProvider".
-// isLoading: true signals to consumers that auth state is not yet resolved.
-// The Proxy handles any future KindeContextProps methods not listed in the base,
-// returning async no-ops so the stub never drifts when Kinde adds new methods.
-const ssrFallbackBase = {
-  isAuthenticated: false,
-  isLoading: true,
-  user: undefined,
-  login: async () => {},
-  register: async () => {},
-  logout: async () => {},
-  getIdToken: async () => undefined,
-  getToken: async () => undefined,
-  getAccessToken: async () => undefined,
-  getClaim: async () => null,
-  getClaims: async () => null,
-  getOrganization: async () => null,
-  getCurrentOrganization: async () => null,
-  getFlag: async () => null,
-  getUserProfile: async () => null,
-  getPermission: async () => ({
-    permissionKey: "",
-    orgCode: null,
-    isGranted: false,
-  }),
-  getPermissions: async () => ({ orgCode: null, permissions: [] }),
-  getUserOrganizations: async () => null,
-  getRoles: async () => [],
-  refreshToken: async () => ({ success: false as const }),
-  generatePortalUrl: async () => ({ url: new URL("about:blank") }),
-};
-
-const ssrFallbackContext = new Proxy(ssrFallbackBase, {
-  get(target, prop: string) {
-    if (prop in target) return target[prop as keyof typeof target];
-    return async () => null;
-  },
-}) as unknown as KindeContextProps;
-
+// null is semantically correct here: there is no auth context during SSR.
+// useKindeAuth() handles null safely by returning SSR_DEFAULTS (isLoading: true).
 const FallbackKindeContextProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  return (
-    <KindeContext.Provider value={ssrFallbackContext}>
-      {children}
-    </KindeContext.Provider>
-  );
+  return <KindeContext.Provider value={null}>{children}</KindeContext.Provider>;
 };
 
 export const KindeTanstackProvider = ({

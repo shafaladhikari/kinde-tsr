@@ -1,2 +1,2 @@
-export { useKindeAuth } from '@kinde-oss/kinde-auth-react';
+export { useKindeAuth } from "./hooks/public/use-kinde-auth";
 export * from './components';
