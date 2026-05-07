@@ -53,6 +53,13 @@ describe("useKindeAuth", () => {
       const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
       expect(result.current.user).toBeUndefined();
     });
+
+    it("throws a clear error when a method is called before auth is ready", () => {
+      const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
+      expect(() => result.current.getToken()).toThrow(
+        'useKindeAuth: "getToken" was called before auth is ready — check isLoading before calling auth methods'
+      );
+    });
   });
 
   describe("when context has a value", () => {
