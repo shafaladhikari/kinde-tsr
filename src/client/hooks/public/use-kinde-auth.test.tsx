@@ -39,18 +39,10 @@ const realContextWrapper = ({ children }: { children: ReactNode }) => (
 
 describe("useKindeAuth", () => {
   describe("when context is null (SSR / before provider mounts)", () => {
-    it("returns isAuthenticated: false", () => {
+    it("returns unauthenticated initial state", () => {
       const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
       expect(result.current.isAuthenticated).toBe(false);
-    });
-
-    it("returns isLoading: true", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
       expect(result.current.isLoading).toBe(true);
-    });
-
-    it("returns user: undefined", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
       expect(result.current.user).toBeUndefined();
     });
 
