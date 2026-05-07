@@ -15,9 +15,9 @@ export type KindeTanstackProviderProps = {
 // Provided during SSR and while the client session is loading.
 // Must be non-null so useKindeAuth() doesn't throw "must be used within a KindeProvider".
 // isLoading: true signals to consumers that auth state is not yet resolved.
-// "as unknown as KindeContextProps" is intentional: the no-op stubs can't satisfy
-// the full parameter signatures of methods like refreshToken, but that's fine for SSR.
-const ssrFallbackContext = {
+// The Proxy handles any future KindeContextProps methods not listed in the base,
+// returning async no-ops so the stub never drifts when Kinde adds new methods.
+const ssrFallbackBase = {
   isAuthenticated: false,
   isLoading: true,
   user: undefined,
@@ -43,7 +43,14 @@ const ssrFallbackContext = {
   getRoles: async () => [],
   refreshToken: async () => ({ success: false as const }),
   generatePortalUrl: async () => ({ url: new URL("about:blank") }),
-} as unknown as KindeContextProps;
+};
+
+const ssrFallbackContext = new Proxy(ssrFallbackBase, {
+  get(target, prop: string) {
+    if (prop in target) return target[prop as keyof typeof target];
+    return async () => null;
+  },
+}) as unknown as KindeContextProps;
 
 const FallbackKindeContextProvider = ({
   children,
