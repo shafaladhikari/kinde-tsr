@@ -25,9 +25,15 @@ const ssrBase = {
  * Symbol-keyed properties (used internally by JS) are forwarded to `ssrBase`
  * via `Reflect.get` so serialisation and iteration behave normally.
  */
+// Returning undefined for thenable keys prevents SSR_DEFAULTS from being
+// mistaken for a Promise by `await`, `Promise.resolve()`, or async utilities
+// that probe for `.then` on values.
+const THENABLE_KEYS = new Set(["then", "catch", "finally"]);
+
 const SSR_DEFAULTS = new Proxy(ssrBase, {
   get(target, prop: PropertyKey) {
     if (typeof prop === "symbol") return Reflect.get(target, prop);
+    if (THENABLE_KEYS.has(prop as string)) return undefined;
     if (prop in target) return target[prop as keyof typeof target];
     return async () => {
       throw new Error(

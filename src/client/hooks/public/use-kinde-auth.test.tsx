@@ -5,36 +5,46 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { useKindeAuth } from "./use-kinde-auth";
 
-const mockCtx: KindeContextProps = {
+function createMockKindeContext(
+  overrides: Partial<KindeContextProps> = {}
+): Partial<KindeContextProps> {
+  return {
+    isAuthenticated: false,
+    isLoading: false,
+    user: undefined,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    getIdToken: vi.fn(),
+    getToken: vi.fn(),
+    getAccessToken: vi.fn(),
+    getClaim: vi.fn(),
+    getClaims: vi.fn(),
+    getOrganization: vi.fn(),
+    getCurrentOrganization: vi.fn(),
+    getFlag: vi.fn(),
+    getUserProfile: vi.fn(),
+    getPermission: vi.fn(),
+    getPermissions: vi.fn(),
+    getUserOrganizations: vi.fn(),
+    getRoles: vi.fn(),
+    refreshToken: vi.fn(),
+    generatePortalUrl: vi.fn(),
+    ...overrides,
+  };
+}
+
+const mockCtx = createMockKindeContext({
   isAuthenticated: true,
-  isLoading: false,
-  user: { id: "user_1", email: "test@example.com", givenName: "Test", familyName: "User", picture: null },
-  login: vi.fn(),
-  register: vi.fn(),
-  logout: vi.fn(),
-  getIdToken: vi.fn(),
-  getToken: vi.fn(),
-  getAccessToken: vi.fn(),
-  getClaim: vi.fn(),
-  getClaims: vi.fn(),
-  getOrganization: vi.fn(),
-  getCurrentOrganization: vi.fn(),
-  getFlag: vi.fn(),
-  getUserProfile: vi.fn(),
-  getPermission: vi.fn(),
-  getPermissions: vi.fn(),
-  getUserOrganizations: vi.fn(),
-  getRoles: vi.fn(),
-  refreshToken: vi.fn(),
-  generatePortalUrl: vi.fn(),
-} as unknown as KindeContextProps;
+  user: { id: "user_1", email: "test@example.com", givenName: "Test", familyName: "User", picture: undefined },
+});
 
 const nullContextWrapper = ({ children }: { children: ReactNode }) => (
   <KindeContext.Provider value={null}>{children}</KindeContext.Provider>
 );
 
 const realContextWrapper = ({ children }: { children: ReactNode }) => (
-  <KindeContext.Provider value={mockCtx}>{children}</KindeContext.Provider>
+  <KindeContext.Provider value={mockCtx as KindeContextProps}>{children}</KindeContext.Provider>
 );
 
 describe("useKindeAuth", () => {
