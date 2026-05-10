@@ -38,47 +38,27 @@ const realContextWrapper = ({ children }: { children: ReactNode }) => (
 );
 
 describe("useKindeAuth", () => {
-  describe("when context is null (SSR / before provider mounts)", () => {
-    it("returns unauthenticated initial state", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
-      expect(result.current.isAuthenticated).toBe(false);
-      expect(result.current.isLoading).toBe(true);
-      expect(result.current.user).toBeUndefined();
-    });
-
-    it("throws a clear error when a method is called before auth is ready", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper });
-      expect(() => result.current.getToken()).toThrow(
-        'useKindeAuth: "getToken" was called before auth is ready — check isLoading before calling auth methods'
-      );
+  describe("when context is null on the client (missing KindeTanstackProvider)", () => {
+    it("throws a missing provider error", () => {
+      expect(() =>
+        renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper })
+      ).toThrow("useKindeAuth must be used within a KindeProvider");
     });
   });
 
   describe("when context has a value", () => {
-    it("returns isAuthenticated from context", () => {
+    it("returns auth state from context", () => {
       const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
       expect(result.current.isAuthenticated).toBe(true);
-    });
-
-    it("returns isLoading from context", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
       expect(result.current.isLoading).toBe(false);
-    });
-
-    it("returns user from context", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
       expect(result.current.user?.email).toBe("test@example.com");
     });
 
-    it("passes through login and logout", () => {
+    it("passes through login, logout, and register", () => {
       const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
       expect(result.current.login).toBe(mockCtx.login);
       expect(result.current.logout).toBe(mockCtx.logout);
-    });
-
-    it("does not expose register", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
-      expect("register" in result.current).toBe(false);
+      expect(result.current.register).toBe(mockCtx.register);
     });
   });
 });
