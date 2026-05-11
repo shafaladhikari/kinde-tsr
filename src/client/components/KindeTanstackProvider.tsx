@@ -1,4 +1,5 @@
 import { KindeContext, KindeProvider } from "@kinde-oss/kinde-auth-react";
+import type { KindeContextProps } from "@kinde-oss/kinde-auth-react";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
 import { ClientOnly } from "@tanstack/react-router";
 import type { ReactNode } from "react";
@@ -11,14 +12,47 @@ export type KindeTanstackProviderProps = {
   waitForInitialLoad?: boolean;
 };
 
-// null is semantically correct here: there is no auth context during SSR.
-// useKindeAuth() handles null safely by returning SSR_DEFAULTS (isLoading: true).
+// Non-method fields from KindeContextProps (via State). Listed explicitly so the
+// Proxy trap never intercepts them and returns a function instead of their real value.
+const loadingBase = {
+  isAuthenticated: false as const,
+  isLoading: true as const,
+  user: undefined,
+  error: undefined,
+};
+
+// Returning undefined for thenable keys prevents loadingContext from being
+// mistaken for a Promise by `await`, `Promise.resolve()`, or async utilities
+// that probe for `.then` on values.
+const THENABLE_KEYS = new Set(["then", "catch", "finally"]);
+
+// Provided whenever KindeTanstackProvider is mounted but auth is not yet resolved
+// (during SSR or client-side loading with waitForInitialLoad). Keeping this non-null
+// means KindeContext is null *only* when no provider is present at all — so
+// useKindeAuth can throw immediately without needing a typeof window check.
+const loadingContext = new Proxy(loadingBase, {
+  get(target, prop: PropertyKey) {
+    if (typeof prop === "symbol") return Reflect.get(target, prop);
+    if (THENABLE_KEYS.has(prop as string)) return undefined;
+    if (prop in target) return target[prop as keyof typeof target];
+    return async () => {
+      throw new Error(
+        `useKindeAuth: "${String(prop)}" was called before auth is ready — check isLoading before calling auth methods`
+      );
+    };
+  },
+}) as unknown as KindeContextProps;
+
+// KindeContext is always non-null inside this provider (loading or not).
+// null context means the component tree is outside KindeTanstackProvider entirely.
 const FallbackKindeContextProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  return <KindeContext.Provider value={null}>{children}</KindeContext.Provider>;
+  return (
+    <KindeContext.Provider value={loadingContext}>{children}</KindeContext.Provider>
+  );
 };
 
 export const KindeTanstackProvider = ({

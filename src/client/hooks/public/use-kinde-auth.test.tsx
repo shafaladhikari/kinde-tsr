@@ -39,33 +39,40 @@ const mockCtx = createMockKindeContext({
   user: { id: "user_1", email: "test@example.com", givenName: "Test", familyName: "User", picture: undefined },
 });
 
-const nullContextWrapper = ({ children }: { children: ReactNode }) => (
-  <KindeContext.Provider value={null}>{children}</KindeContext.Provider>
-);
-
-const realContextWrapper = ({ children }: { children: ReactNode }) => (
-  <KindeContext.Provider value={mockCtx as KindeContextProps}>{children}</KindeContext.Provider>
-);
+const wrapper = (value: Partial<KindeContextProps> | null) =>
+  ({ children }: { children: ReactNode }) => (
+    <KindeContext.Provider value={value as KindeContextProps}>{children}</KindeContext.Provider>
+  );
 
 describe("useKindeAuth", () => {
-  describe("when context is null on the client (missing KindeTanstackProvider)", () => {
+  describe("when context is null (missing KindeTanstackProvider)", () => {
     it("throws a missing provider error", () => {
       expect(() =>
-        renderHook(() => useKindeAuth(), { wrapper: nullContextWrapper })
+        renderHook(() => useKindeAuth(), { wrapper: wrapper(null) })
       ).toThrow("useKindeAuth must be used within a KindeProvider");
+    });
+  });
+
+  describe("when context is loading (SSR or waitForInitialLoad — provided by KindeTanstackProvider)", () => {
+    it("returns isLoading: true and isAuthenticated: false", () => {
+      const { result } = renderHook(() => useKindeAuth(), {
+        wrapper: wrapper(createMockKindeContext({ isLoading: true, isAuthenticated: false })),
+      });
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isAuthenticated).toBe(false);
     });
   });
 
   describe("when context has a value", () => {
     it("returns auth state from context", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
+      const { result } = renderHook(() => useKindeAuth(), { wrapper: wrapper(mockCtx) });
       expect(result.current.isAuthenticated).toBe(true);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.user?.email).toBe("test@example.com");
     });
 
     it("passes through login, logout, and register", () => {
-      const { result } = renderHook(() => useKindeAuth(), { wrapper: realContextWrapper });
+      const { result } = renderHook(() => useKindeAuth(), { wrapper: wrapper(mockCtx) });
       expect(result.current.login).toBe(mockCtx.login);
       expect(result.current.logout).toBe(mockCtx.logout);
       expect(result.current.register).toBe(mockCtx.register);
