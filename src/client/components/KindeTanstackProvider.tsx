@@ -2,7 +2,7 @@ import { KindeContext, KindeProvider } from "@kinde-oss/kinde-auth-react";
 import type { KindeContextProps } from "@kinde-oss/kinde-auth-react";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
 import { ClientOnly } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { KindeConfig } from "../../config";
 import { useSessionSync } from "../hooks/internal/use-session-sync";
 import { getClientSession } from "../store";
@@ -45,7 +45,7 @@ const loadingContext = new Proxy(loadingBase, {
 
 // KindeContext is always non-null inside this provider (loading or not).
 // null context means the component tree is outside KindeTanstackProvider entirely.
-const FallbackKindeContextProvider = ({
+export const FallbackKindeContextProvider = ({
   children,
 }: {
   children: ReactNode;
@@ -77,7 +77,10 @@ const KindeProviderClient = ({
   waitForInitialLoad,
 }: KindeTanstackProviderProps) => {
   const { loading, refreshHandler } = useSessionSync();
-  storageSettings.onRefreshHandler = refreshHandler;
+
+  useEffect(() => {
+    storageSettings.onRefreshHandler = refreshHandler;
+  }, [refreshHandler]);
 
   if (loading && waitForInitialLoad) {
     return (

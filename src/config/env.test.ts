@@ -1,7 +1,6 @@
-// @vitest-environment node
 // getValidatedKindeEnv is server-only: it checks KINDE_CLIENT_SECRET only when
-// window is undefined. The node environment ensures that branch is exercised.
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+// window is undefined. This file runs in the node environment (the global default),
+// which ensures that branch is exercised.
 import { getValidatedKindeEnv } from "./env";
 
 const REQUIRED = {
