@@ -202,7 +202,7 @@ The SDK reads required client-facing values from `VITE_*` variables and reads se
 | Export | Description |
 | --- | --- |
 | `KindeTanstackProvider` | Wraps the Kinde React provider and syncs the server session into the client store. |
-| `useKindeAuth` | Returns the full `KindeContextProps` context. Wraps `@kinde-oss/kinde-auth-react` with SSR-safe behaviour — see [useKindeAuth divergence](#usekindeauth-divergence-from-kinde-oss-kinde-auth-react) below. |
+| `useKindeAuth` | Direct re-export of `useKindeAuth` from `@kinde-oss/kinde-auth-react`. SSR safety is provided by `KindeTanstackProvider` — see [SSR safety](#ssr-safety-and-usekindeauth) below. |
 | `LoginLink` | TanStack Router `Link` pointed at the configured login route. |
 | `LogoutLink` | TanStack Router `Link` pointed at the configured logout route. |
 | `RegisterLink` | TanStack Router `Link` pointed at the configured register route. |
@@ -218,17 +218,17 @@ The SDK reads required client-facing values from `VITE_*` variables and reads se
 | `protect(options?)` | Guards TanStack routes from `beforeLoad`. |
 | `@kinde/js-utils` re-exports | Token, user, org, permission, entitlement, and helper utilities from the core Kinde JS utilities package. |
 
-### `useKindeAuth` divergence from `@kinde-oss/kinde-auth-react`
+### SSR safety and `useKindeAuth`
 
-`useKindeAuth` in this package is **not** a direct re-export. It is a local wrapper around `useContext(KindeContext)` with behaviour intentionally different from the original in two scenarios:
+`useKindeAuth` is a direct re-export from `@kinde-oss/kinde-auth-react`. SSR safety is handled at the provider level: `KindeTanstackProvider` always supplies a non-null fallback context during SSR and while the initial session load is in progress, so `useKindeAuth` never sees a null context and never throws on the server.
 
-| Scenario | `@kinde-oss/kinde-auth-react` | `@kinde/tsr` |
-| --- | --- | --- |
-| Null context during SSR (`typeof window === "undefined"`) | Throws `"Oooops! useKindeAuth must be used within a KindeProvider"` | Returns safe defaults: `isLoading: true`, `isAuthenticated: false`, `user: undefined`, `error: undefined` |
-| Null context on the client (missing `KindeTanstackProvider`) | Throws `"Oooops! useKindeAuth must be used within a KindeProvider"` | Throws `"useKindeAuth must be used within a KindeProvider"` |
-| Method called before hydration (e.g. `getToken()`) | Throws synchronously at the `useContext` call site | Returns a rejected `Promise` with `"…was called before auth is ready — check isLoading"` |
+| Scenario | Behaviour |
+| --- | --- |
+| SSR or initial client load | `isLoading: true`, `isAuthenticated: false`, `user: undefined`, `error: undefined` |
+| Method called before hydration (e.g. `getToken()`) | Returns a rejected `Promise` with `"…was called before auth is ready — check isLoading"` |
+| Used outside `KindeTanstackProvider` | Throws `"Oooops! useKindeAuth must be used within a KindeProvider"` |
 
-The SSR change is intentional: TanStack Start renders route components on the server, so `useKindeAuth()` must not throw during SSR. Always guard method calls with `if (!isLoading)` or `if (isAuthenticated)` before invoking async methods:
+Always guard method calls with `if (!isLoading)` or `if (isAuthenticated)` before invoking async methods:
 
 ```tsx
 const { isLoading, isAuthenticated, getToken } = useKindeAuth()
